@@ -14,19 +14,38 @@ const progressRoutes = require("./routes/progressRoutes");
 const userRoutes = require("./routes/userRoutes");
 
 const app = express();
+
 connectDB();
 
-app.use(
-  cors({
-    origin: [process.env.CLIENT_URL || "http://localhost:3000"],
-    credentials: true,
-  })
-);
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "https://12-fit.vercel.app");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("12Fit API is running");
+});
+
+app.get("/cors-test", (req, res) => {
+  res.json({
+    message: "CORS is working",
+  });
 });
 
 app.use("/auth", authRoutes);
@@ -36,36 +55,44 @@ app.use("/products", productRoutes);
 app.use("/progress", progressRoutes);
 app.use("/users", userRoutes);
 
+app.use((err, req, res, next) => {
+  console.error("SERVER ERROR:", err);
+
+  res.status(500).json({
+    message: err.message || "Server error",
+  });
+});
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CLIENT_URL || "http://localhost:3000"],
+    origin: "https://12-fit.vercel.app",
     credentials: true,
   },
 });
 
-const onlineUsers = new Set();
+let onlineUsers = 0;
+
+app.set("onlineUsers", onlineUsers);
 
 io.on("connection", (socket) => {
-  socket.on("user-online", (userId) => {
-    if (userId) {
-      socket.userId = String(userId);
-      onlineUsers.add(socket.userId);
-      io.emit("online-users-count", onlineUsers.size);
-    }
-  });
+  onlineUsers += 1;
+
+  app.set("onlineUsers", onlineUsers);
+
+  io.emit("onlineUsers", onlineUsers);
+  io.emit("online-users-count", onlineUsers);
 
   socket.on("disconnect", () => {
-    if (socket.userId) {
-      onlineUsers.delete(socket.userId);
-      io.emit("online-users-count", onlineUsers.size);
-    }
+    onlineUsers = Math.max(0, onlineUsers - 1);
+
+    app.set("onlineUsers", onlineUsers);
+
+    io.emit("onlineUsers", onlineUsers);
+    io.emit("online-users-count", onlineUsers);
   });
 });
-
-app.set("io", io);
-app.set("onlineUsers", onlineUsers);
 
 const PORT = process.env.PORT || 8080;
 
