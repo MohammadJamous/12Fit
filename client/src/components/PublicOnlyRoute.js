@@ -1,12 +1,11 @@
 import { Navigate } from "react-router-dom";
 
 function PublicOnlyRoute({ children }) {
-  const token = localStorage.getItem("token");
+ const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (token) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
+if (token) {
+  return <Navigate to={user.role === "admin" ? "/dashboard" : "/"} replace />;
+}
   return children;
 }
 
