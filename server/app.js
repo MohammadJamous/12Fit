@@ -44,7 +44,7 @@ app.get("/", (req, res) => {
 
 app.get("/cors-test", (req, res) => {
   res.json({
-    message: "CORS is working",
+    message: "CORS TEST VERSION 2",
   });
 });
 
