@@ -44,8 +44,8 @@ function Home() {
                     </Link>
                   </>
                 ) : (
-                  <Link to="/dashboard" className="btn btn-primary btn-lg px-4">
-                    Go to Dashboard
+                  <Link to="/workout" className="btn btn-primary btn-lg px-4">
+                    Start Your Journey
                   </Link>
                 )}
               </div>
@@ -126,8 +126,8 @@ function Home() {
               Create Account
             </Link>
           ) : (
-            <Link to="/dashboard" className="btn btn-light text-dark mt-3 px-4">
-              Open Dashboard
+            <Link to="/diet" className="btn btn-light text-dark mt-3 px-4">
+              Explore Plans
             </Link>
           )}
         </div>
