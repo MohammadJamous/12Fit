@@ -3,6 +3,7 @@ const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 require("dotenv").config();
+require("./listeners/authListener");
 
 const connectDB = require("./config/db");
 
@@ -12,6 +13,8 @@ const dietRoutes = require("./routes/dietRoutes");
 const productRoutes = require("./routes/productRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 const userRoutes = require("./routes/userRoutes");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 
 const app = express();
 
@@ -37,23 +40,19 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {
   res.send("12Fit API is running");
 });
 
-app.get("/cors-test", (req, res) => {
-  res.json({
-    message: "CORS TEST VERSION 2",
-  });
-});
 
-app.use("/auth", authRoutes);
-app.use("/workouts", workoutRoutes);
-app.use("/diet", dietRoutes);
-app.use("/products", productRoutes);
-app.use("/progress", progressRoutes);
-app.use("/users", userRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/workouts", workoutRoutes);
+app.use("/api/v1/diet", dietRoutes);
+app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/progress", progressRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.use((err, req, res, next) => {
   console.error("SERVER ERROR:", err);
@@ -70,6 +69,22 @@ const io = new Server(server, {
     origin: "https://12-fit.vercel.app",
     credentials: true,
   },
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get("/api/v1/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 let onlineUsers = 0;

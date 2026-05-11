@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Workout = require("../models/Workout");
 const Progress = require("../models/Progress");
+const { isValidRole } = require("../utils/validators");
 
 const getUsersWithPlans = async (req, res) => {
   try {
@@ -56,7 +57,12 @@ const getRegisteredUsersCount = async (req, res) => {
 
 const getOnlineUsersCount = async (req, res) => {
   const onlineUsers = req.app.get("onlineUsers");
-  const online = onlineUsers ? onlineUsers.size : 0;
+ 
+  const online =
+    typeof onlineUsers === "number"
+      ? onlineUsers
+      : onlineUsers?.size || 0;
+
   return res.json({ online });
 };
 
@@ -64,18 +70,32 @@ const updateUserRole = async (req, res) => {
   try {
     const { role } = req.body;
 
+    if (!role || !isValidRole(role)) {
+      return res.status(400).json({
+        message: "Role must be either user or admin",
+      });
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { role: role || "admin" },
+      { role },
       { new: true }
     ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
 
     return res.json({
       message: "User role updated successfully",
       user: updatedUser,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Update error" });
+    return res.status(500).json({
+      message: "Update error",
+    });
   }
 };
 
