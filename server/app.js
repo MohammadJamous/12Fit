@@ -47,6 +47,13 @@ app.get("/", (req, res) => {
   res.send("12Fit API is running");
 });
 
+app.use("/auth", authRoutes);
+app.use("/workouts", workoutRoutes);
+app.use("/diet", dietRoutes);
+app.use("/products", productRoutes);
+app.use("/orders", orderRoutes);
+app.use("/progress", progressRoutes);
+app.use("/users", userRoutes);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/workouts", workoutRoutes);
