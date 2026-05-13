@@ -55,6 +55,7 @@ app.use("/orders", orderRoutes);
 app.use("/progress", progressRoutes);
 app.use("/users", userRoutes);
 
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/workouts", workoutRoutes);
 app.use("/api/v1/diet", dietRoutes);

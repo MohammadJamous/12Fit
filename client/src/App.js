@@ -8,6 +8,9 @@ import Workout from "./pages/Workout";
 import Diet from "./pages/Diet";
 import Products from "./pages/Products";
 import Progress from "./pages/Progress";
+import NotFound from "./pages/NotFound";
+import Unauthorized from "./pages/Unauthorized";
+import ServerError from "./pages/ServerError";
 
 import PublicOnlyRoute from "./components/PublicOnlyRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -87,6 +90,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+             path="/unauthorized"
+              element={<Unauthorized />}
+               />
+
+<Route path=
+"/server-error"
+ element={<ServerError />}
+  />
+
+<Route
+ path="*"
+ element={<NotFound />} 
+ />
+ 
           </Routes>
         </div>
 
