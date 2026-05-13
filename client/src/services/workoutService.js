@@ -8,7 +8,7 @@ const api = axios.create({
  */
 export const generateWorkout = async (data) => {
   try {
-    const response = await api.post("/api/workouts/generate", data);
+    const response = await api.post("/workouts/generate", data);
     return response.data; 
   } catch (error) {
     console.error("Workout Service Error:", error.response?.data || error.message);
