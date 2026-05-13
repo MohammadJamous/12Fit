@@ -1,5 +1,6 @@
 const Workout = require("../models/Workout");
 
+
 const generateStaticWorkout = (goal) => {
   if (goal === "Lose Weight") {
     return ["Jumping Jacks - 3 sets", "Walking - 30 min", "Plank - 30 sec"];
@@ -137,15 +138,15 @@ const generateWorkout = async (req, res) => {
     }
 
     const workout = await Workout.create({
-      user: req.user.id,
-      age,
-      weight,
-      height,
-      activity,
-      goal,
-      diet,
-      plan: workoutPlan,
-    });
+  user: req.user.id,
+  age,
+  weight,
+  height,
+  activity,
+  goal,
+  diet,
+  plan: workoutPlan,
+});
 
     return res.status(201).json({
       message: "Workout generated successfully",
