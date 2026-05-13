@@ -11,6 +11,7 @@ const authRoutes = require("./routes/authRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
 const dietRoutes = require("./routes/dietRoutes");
 const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 const progressRoutes = require("./routes/progressRoutes");
 const userRoutes = require("./routes/userRoutes");
 const swaggerUi = require("swagger-ui-express");
@@ -51,6 +52,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/workouts", workoutRoutes);
 app.use("/api/v1/diet", dietRoutes);
 app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/progress", progressRoutes);
 app.use("/api/v1/users", userRoutes);
 
@@ -86,6 +88,8 @@ app.get("/api/v1/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.set("io", io);
 
 let onlineUsers = 0;
 
