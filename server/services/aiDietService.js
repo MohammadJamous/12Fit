@@ -172,7 +172,7 @@ const createStructuredCompletion = async (prompt) => {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
   const maxRetries = 3;
 
   let lastError;
