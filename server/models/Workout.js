@@ -7,14 +7,40 @@ const workoutSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
+    age: {
+      type: Number,
+      required: true,
+    },
+
+    weight: {
+      type: Number,
+      required: true,
+    },
+
+    height: {
+      type: Number,
+      required: true,
+    },
+
+    activity: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     goal: {
       type: String,
-      default: "",
+      required: true,
+      trim: true,
     },
-    level: {
+
+    diet: {
       type: String,
       default: "",
+      trim: true,
     },
+
     plan: {
       type: [String],
       default: [],
