@@ -8,6 +8,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@google/genai": "^2.2.0",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.5",
