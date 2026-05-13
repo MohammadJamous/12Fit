@@ -1,76 +1,128 @@
 import { useState } from "react";
-import { createWorkout } from "../services/workoutService";
+import { generateWorkout } from "../services/workoutService";
 
 function Workout() {
-  const token = localStorage.getItem("token");
+  const [formData, setFormData] = useState({
+    age: "",
+    weight: "",
+    height: "",
+    activity: "Moderate",
+    goal: "Lose Weight",
+    diet: "",
+  });
 
-  const [goal, setGoal] = useState("lose weight");
-  const [level, setLevel] = useState("beginner");
   const [result, setResult] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
+    setMessage("");
     try {
-      const res = await createWorkout({ goal, level }, token);
-      setResult(res.data.workoutPlan);
-      setMessage(res.data.message);
+      const data = await generateWorkout(formData);
+      const plan = data.workoutPlan || data.data?.workoutPlan || [];
+      setResult(plan);
+      
+      if (plan.length === 0) {
+        setMessage("Connection successful but no data received.");
+      } else {
+        setMessage("Plan generated successfully");
+      }
     } catch (error) {
-      setMessage(error.response?.data?.message || "Something went wrong");
+      console.error(error);
+      setMessage("Error connecting to server. ");
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <>
-      <div className="container py-5">
-        <h2 className="mb-4">Workout Generator</h2>
+  const renderExercise = (step) => {
+    if (typeof step === 'string') {
+      return step;
+    }
+    if (typeof step === 'object' && step !== null) {
+      return Object.entries(step)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(" - ");
+    }
+    return "Unknown exercise";
+  };
 
-        <form onSubmit={handleGenerate} className="card p-4 shadow-sm border-0 mb-4">
+  return (
+    <div className="container py-5">
+      <div className="card p-4 shadow-sm border-0 mx-auto" style={{ maxWidth: "500px" }}>
+        <h4 className="text-center mb-4 text-primary">12FIT AI Generator</h4>
+        
+        <form onSubmit={handleGenerate}>
+          <div className="mb-3">
+            <label className="form-label">Age</label>
+            <input type="number" name="age" className="form-control" onChange={handleChange} value={formData.age} required placeholder="Example: 25" />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Weight (kg)</label>
+            <input type="number" name="weight" className="form-control" onChange={handleChange} value={formData.weight} required placeholder="Example: 80" />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Height (cm)</label>
+            <input type="number" name="height" className="form-control" onChange={handleChange} value={formData.height} required placeholder="Example: 180" />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Activity Level</label>
+            <select name="activity" className="form-control" onChange={handleChange} value={formData.activity}>
+              <option value="Sedentary">Sedentary (No Exercise)</option>
+              <option value="Moderate">Moderate (Light Exercise)</option>
+              <option value="Active">Active (Heavy Exercise)</option>
+            </select>
+          </div>
+
           <div className="mb-3">
             <label className="form-label">Goal</label>
-            <select
-              className="form-control"
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-            >
-              <option value="lose weight">Lose Weight</option>
-              <option value="muscle gain">Muscle Gain</option>
-              <option value="general fitness">General Fitness</option>
+            <select name="goal" className="form-control" onChange={handleChange} value={formData.goal}>
+              <option value="Lose Weight">Lose Weight</option>
+              <option value="Gain Muscle">Gain Muscle</option>
+              <option value="Maintain">Maintain Fitness</option>
             </select>
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Level</label>
-            <select
-              className="form-control"
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-            >
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-            </select>
+          <div className="mb-4">
+            <label className="form-label">Additional Notes (Optional)</label>
+            <textarea name="diet" className="form-control" rows="2" onChange={handleChange} value={formData.diet} placeholder="Any injuries or dietary needs..."></textarea>
           </div>
 
-          <button className="btn btn-primary">Generate Workout</button>
+          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+            {loading ? "Generating..." : "Generate Plan"}
+          </button>
         </form>
-
-        {message && <div className="alert alert-info">{message}</div>}
-
-        {result.length > 0 && (
-          <div className="card p-4 shadow-sm border-0">
-            <h4 className="mb-3">Your Workout Plan</h4>
-            <ul className="mb-0">
-              {result.map((item, index) => (
-                <li key={index} className="mb-2">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
-    </>
+
+      {message && (
+        <div className={`alert ${result.length > 0 ? 'alert-success' : 'alert-danger'} mt-4 text-center mx-auto`} style={{ maxWidth: "500px" }}>
+          {message}
+        </div>
+      )}
+
+      {result.length > 0 && (
+        <div className="card p-4 shadow-sm border-0 mt-4 mx-auto" style={{ maxWidth: "500px" }}>
+          <h5 className="mb-4 text-center text-primary">Your Workout Plan</h5>
+          <div className="list-group">
+            {result.map((step, index) => (
+              <div key={index} className="list-group-item border-0 mb-1 rounded bg-light">
+                <span>{index + 1}. </span> 
+                <span>{renderExercise(step)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
