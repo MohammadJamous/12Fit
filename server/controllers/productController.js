@@ -1,9 +1,32 @@
 const Product = require("../models/Product");
-const { isEmpty, isPositiveNumber } = require("../utils/validators");
+const cloudinary = require("../config/cloudinary");
+
+const uploadImageToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "12fit/products",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    stream.end(fileBuffer);
+  });
+};
 
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const search = req.query.search || "";
+
+    const products = await Product.find({
+      name: { $regex: search, $options: "i" },
+    }).sort({ createdAt: -1 });
 
     return res.json(products);
   } catch (error) {
@@ -13,24 +36,47 @@ const getProducts = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, price, category } = req.body;
+    const {
+      name,
+      price,
+      shortDesc,
+      category,
+      description,
+      usageTips,
+      benefits,
+    } = req.body;
 
-    if (isEmpty(name) || isEmpty(price) || isEmpty(category)) {
-      return res.status(400).json({
-        message: "Name, price, and category are required",
-      });
+    if (!name || !price) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    if (!isPositiveNumber(price)) {
-      return res.status(400).json({
-        message: "Price must be greater than 0",
-      });
+    let imageUrl = "";
+
+    if (req.file) {
+      const uploadedImage = await uploadImageToCloudinary(req.file.buffer);
+      imageUrl = uploadedImage.secure_url;
+    }
+
+    let benefitsArray = [];
+
+    if (Array.isArray(benefits)) {
+      benefitsArray = benefits;
+    } else if (typeof benefits === "string") {
+      benefitsArray = benefits
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== "");
     }
 
     const product = await Product.create({
       name,
       price,
+      image: imageUrl,
+      shortDesc,
       category,
+      description,
+      usageTips,
+      benefits: benefitsArray,
     });
 
     return res.status(201).json({
@@ -44,21 +90,62 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    if (req.body.price && !isPositiveNumber(req.body.price)) {
+    const {
+      name,
+      price,
+      shortDesc,
+      category,
+      description,
+      usageTips,
+      benefits,
+    } = req.body;
+
+    if (!name || !price) {
       return res.status(400).json({
-        message: "Price must be greater than 0",
+        message: "Name and price are required",
       });
+    }
+
+    const oldProduct = await Product.findById(req.params.id);
+
+    if (!oldProduct) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    let imageUrl = oldProduct.image;
+
+    if (req.file) {
+      const uploadedImage = await uploadImageToCloudinary(req.file.buffer);
+      imageUrl = uploadedImage.secure_url;
+    }
+
+    let benefitsArray = [];
+
+    if (Array.isArray(benefits)) {
+      benefitsArray = benefits;
+    } else if (typeof benefits === "string") {
+      benefitsArray = benefits
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== "");
     }
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        name,
+        price,
+        image: imageUrl,
+        shortDesc,
+        category,
+        description,
+        usageTips,
+        benefits: benefitsArray,
+      },
       { new: true }
     );
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
 
     return res.json({
       message: "Product updated successfully",
@@ -74,7 +161,9 @@ const deleteProduct = async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id);
 
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({
+        message: "Product not found",
+      });
     }
 
     return res.json({
