@@ -16,7 +16,11 @@ function Login() {
       const res = await loginUser({ email, password });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      if (res.data.user.role === "admin") {
+        navigate("/dashboard");
+        } else {
+        navigate("/");
+        }
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "Something went wrong");
     }

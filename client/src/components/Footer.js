@@ -18,7 +18,6 @@ function Footer() {
             <h6 className="fw-bold mb-3">Links</h6>
             <ul className="list-unstyled footer-links">
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/dashboard">Dashboard</Link></li>
               <li><Link to="/workout">Workout</Link></li>
               <li><Link to="/diet">Diet</Link></li>
             </ul>
