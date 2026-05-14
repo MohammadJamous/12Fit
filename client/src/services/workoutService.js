@@ -16,19 +16,17 @@ api.interceptors.request.use((config) => {
 
 /**
  * Generate AI workout plan
- * @param {Object} data
+ * @param {Object} data - contains age, weight, height, goal, activity
  */
 export const generateWorkout = async (data) => {
   try {
     const response = await api.post("/workouts/generate", data);
-
     return response.data;
   } catch (error) {
     console.error(
       "Workout Service Error:",
       error.response?.data || error.message
     );
-
     throw error;
   }
 };
