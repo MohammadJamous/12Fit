@@ -12,6 +12,38 @@ const generateStaticWorkout = (goal, activity) => {
   return ["Stretching - 10 min", "Bodyweight Squats - 15 reps", "Walking - 15 min"];
 };
 
+const normalizeWorkoutPlan = (plan) => {
+  if (!Array.isArray(plan)) {
+    return [];
+  }
+
+  return plan.map((item) => {
+    if (typeof item === "string") {
+      return item;
+    }
+
+    if (typeof item === "object" && item !== null) {
+      const exercise =
+        item["اسم التمرين"] ||
+        item.exercise ||
+        item.name ||
+        item.workout ||
+        "Exercise";
+
+      const reps =
+        item["العدات"] ||
+        item.reps ||
+        item.sets ||
+        item.duration ||
+        "";
+
+      return reps ? `${exercise} - ${reps}` : exercise;
+    }
+
+    return String(item);
+  });
+};
+
 const getWorkouts = async (req, res) => {
   try {
     const workouts = await Workout.find({ user: req.user.id }).sort({
@@ -41,7 +73,7 @@ const createWorkout = async (req, res) => {
       "google/gemini-2.0-flash-001",
       "meta-llama/llama-3.1-8b-instruct",
       "mistralai/mistral-7b-instruct:free",
-      "google/gemini-flash-1.5",
+      "google/gemini-1.5-flash",
     ];
 
     if (API_KEY) {
@@ -52,7 +84,7 @@ const createWorkout = async (req, res) => {
             headers: {
               Authorization: `Bearer ${API_KEY}`,
               "Content-Type": "application/json",
-              "HTTP-Referer": "http://localhost:3000",
+              "HTTP-Referer": process.env.CLIENT_URL || "http://localhost:3000",
               "X-Title": "12FIT App",
             },
             body: JSON.stringify({
@@ -104,6 +136,8 @@ const createWorkout = async (req, res) => {
       workoutPlan = generateStaticWorkout(goal, activity);
     }
 
+    workoutPlan = normalizeWorkoutPlan(workoutPlan);
+
     const workout = await Workout.create({
       user: req.user.id,
       age,
@@ -127,7 +161,9 @@ const createWorkout = async (req, res) => {
       workout,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
   }
 };
 
