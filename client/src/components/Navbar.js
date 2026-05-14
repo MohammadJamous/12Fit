@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import logo from "../assets/images/logo.png";
 
 function Navbar() {
@@ -7,26 +7,7 @@ function Navbar() {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("theme") === "dark"
-  );
-
-  const [notifications] = useState([
-    "Welcome to 12Fit",
-    "Your fitness plan is ready",
-    "Check your dashboard updates",
-  ]);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.body.classList.remove("dark-mode");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
-
+  
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -100,35 +81,7 @@ function Navbar() {
           </ul>
 
           <div className="d-flex align-items-lg-center flex-column flex-lg-row gap-2 gap-lg-3 mt-3 mt-lg-0 navbar-actions">
-            <button
-              className="theme-icon-btn"
-              onClick={() => setDarkMode(!darkMode)}
-              title="Toggle theme"
-            >
-              {darkMode ? "☀️" : "🌙"}
-            </button>
-
-            <div className="dropdown w-100 w-lg-auto">
-              <button
-                className="btn btn-outline-light btn-sm dropdown-toggle w-100 w-lg-auto"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                🔔 Notifications
-              </button>
-
-              <ul className="dropdown-menu dropdown-menu-end shadow border-0 rounded-4">
-                {notifications.map((item, index) => (
-                  <li key={index}>
-                    <span className="dropdown-item-text px-3 py-2 d-block">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
+          
             {!user ? (
               <>
                 <Link className="btn btn-outline-light w-100 w-lg-auto" to="/login">
