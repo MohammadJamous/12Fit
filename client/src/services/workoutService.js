@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
 });
 
 /**
- * Generate workout plan
+ * Generate AI workout plan
  * @param {Object} data
  */
 export const generateWorkout = async (data) => {
@@ -32,5 +32,3 @@ export const generateWorkout = async (data) => {
     throw error;
   }
 };
-
-export default api;
