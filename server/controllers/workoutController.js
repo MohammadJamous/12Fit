@@ -1,7 +1,6 @@
 const Workout = require("../models/Workout");
 
-
-const generateStaticWorkout = (goal) => {
+const generateStaticWorkout = (goal, activity) => {
   if (goal === "Lose Weight") {
     return ["Jumping Jacks - 3 sets", "Walking - 30 min", "Plank - 30 sec"];
   }
@@ -27,36 +26,6 @@ const getWorkouts = async (req, res) => {
 
 const createWorkout = async (req, res) => {
   try {
-    const { age, weight, height, activity, goal, diet, workoutPlan } = req.body;
-
-    if (!age || !weight || !height || !activity || !goal) {
-      return res.status(400).json({
-        message: "Age, weight, height, activity, and goal are required",
-      });
-    }
-
-    const workout = await Workout.create({
-      user: req.user.id,
-      age,
-      weight,
-      height,
-      activity,
-      goal,
-      diet,
-      plan: workoutPlan || generateStaticWorkout(goal),
-    });
-
-    return res.status(201).json({
-      message: "Workout created successfully",
-      workout,
-    });
-  } catch (error) {
-    return res.status(500).json({ message: "Insert error" });
-  }
-};
-
-const generateWorkout = async (req, res) => {
-  try {
     const { age, weight, height, activity, goal, diet } = req.body;
 
     if (!age || !weight || !height || !activity || !goal) {
@@ -76,7 +45,7 @@ const generateWorkout = async (req, res) => {
     ];
 
     if (API_KEY) {
-      for (const modelName of models) {
+      for (let modelName of models) {
         try {
           const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
@@ -92,11 +61,12 @@ const generateWorkout = async (req, res) => {
                 {
                   role: "system",
                   content:
-                    "You are a professional fitness coach. Return only a JSON array of workout exercises with reps. No extra text.",
+                    "أنت مدرب لياقة محترف. أجب دائماً بمصفوفة JSON فقط تحتوي على أسماء التمارين مع العدات بدون أي نص إضافي.",
                 },
                 {
                   role: "user",
-                  content: `Create a personalized workout plan for: age ${age}, weight ${weight}kg, height ${height}cm, activity ${activity}, goal ${goal}. Notes: ${diet || "none"}. Return only JSON array like ["Exercise - reps"].`,
+                  content: `صمم جدول تمارين مخصص جداً وفريد لشخص: العمر ${age}، الوزن ${weight}kg، الطول ${height}cm، النشاط ${activity}، الهدف ${goal}. الملاحظات: ${diet || "لا يوجد"}.
+                  يجب أن تكون التمارين متنوعة. أعطني النتيجة كمصفوفة JSON فقط مثل: ["تمرين - عدات"]`,
                 },
               ],
             }),
@@ -108,52 +78,54 @@ const generateWorkout = async (req, res) => {
             continue;
           }
 
-          const aiText = data.choices?.[0]?.message?.content;
+          if (data.choices && data.choices[0]) {
+            const aiText = data.choices[0].message.content;
+            const jsonMatch = aiText.match(/\[.*\]/s);
 
-          if (!aiText) {
-            continue;
-          }
+            if (jsonMatch) {
+              try {
+                workoutPlan = JSON.parse(jsonMatch[0]);
+              } catch (error) {
+                workoutPlan = null;
+              }
+            }
 
-          const jsonMatch = aiText.match(/\[.*\]/s);
-
-          if (jsonMatch) {
-            try {
-              workoutPlan = JSON.parse(jsonMatch[0]);
-            } catch (error) {
-              workoutPlan = null;
+            if (workoutPlan) {
+              break;
             }
           }
-
-          if (Array.isArray(workoutPlan) && workoutPlan.length > 0) {
-            break;
-          }
-        } catch (error) {
+        } catch (err) {
           continue;
         }
       }
     }
 
     if (!workoutPlan) {
-      workoutPlan = generateStaticWorkout(goal);
+      workoutPlan = generateStaticWorkout(goal, activity);
     }
 
     const workout = await Workout.create({
-  user: req.user.id,
-  age,
-  weight,
-  height,
-  activity,
-  goal,
-  diet,
-  plan: workoutPlan,
-});
+      user: req.user.id,
+      age,
+      weight,
+      height,
+      activity,
+      goal,
+      diet,
+      plan: workoutPlan,
+    });
 
     return res.status(201).json({
-  message: "Workout generated successfully",
-  workout,
-  workoutPlan: workout.plan,
-});
-
+      message: "تم التوليد بنجاح",
+      age,
+      weight,
+      height,
+      activity,
+      goal,
+      diet,
+      workoutPlan,
+      workout,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
   }
@@ -205,7 +177,7 @@ const deleteWorkout = async (req, res) => {
 module.exports = {
   getWorkouts,
   createWorkout,
-  generateWorkout,
+  generateWorkout: createWorkout,
   updateWorkout,
   deleteWorkout,
 };
