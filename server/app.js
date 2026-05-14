@@ -22,12 +22,26 @@ const app = express();
 connectDB();
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "https://12-fit.vercel.app");
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://12-fit.vercel.app",
+  ];
+
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Vary", "Origin");
+
   res.setHeader("Access-Control-Allow-Credentials", "true");
+
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,POST,PUT,PATCH,DELETE,OPTIONS"
   );
+
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization"
@@ -76,8 +90,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://12-fit.vercel.app",
-    credentials: true,
+    origin: [
+      "http://localhost:3000",
+      "https://12-fit.vercel.app",
+    ],
+     credentials: true,
   },
 });
 
