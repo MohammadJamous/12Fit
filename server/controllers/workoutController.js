@@ -165,13 +165,6 @@ const createWorkout = async (req, res) => {
       message: error.message || "Internal Server Error",
     });
   }
- } catch (error) {
-  console.error("Workout generate error:", error);
-
-  return res.status(500).json({
-    message: error.message || "Internal Server Error",
-  });
-}
 };
 
 const updateWorkout = async (req, res) => {
@@ -193,13 +186,9 @@ const updateWorkout = async (req, res) => {
       message: "Workout updated successfully",
       workout,
     });
- } catch (error) {
-  console.error("Workout generate error:", error);
-
-  return res.status(500).json({
-    message: error.message || "Internal Server Error",
-  });
-}
+  } catch (error) {
+    return res.status(500).json({ message: "Update error" });
+  }
 };
 
 const deleteWorkout = async (req, res) => {
@@ -217,12 +206,8 @@ const deleteWorkout = async (req, res) => {
       message: "Workout deleted successfully",
     });
   } catch (error) {
-  console.error("Workout generate error:", error);
-
-  return res.status(500).json({
-    message: error.message || "Internal Server Error",
-  });
-}
+    return res.status(500).json({ message: "Delete error" });
+  }
 };
 
 module.exports = {
