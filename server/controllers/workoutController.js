@@ -18,29 +18,23 @@ const normalizeWorkoutPlan = (plan) => {
   }
 
   return plan.map((item) => {
+
     if (typeof item === "string") {
       return item;
     }
 
     if (typeof item === "object" && item !== null) {
-      const exercise =
-        item["اسم التمرين"] ||
-        item.exercise ||
-        item.name ||
-        item.workout ||
-        "Exercise";
 
-      const reps =
-        item["العدات"] ||
-        item.reps ||
-        item.sets ||
-        item.duration ||
-        "";
+      const values = Object.values(item);
 
-      return reps ? `${exercise} - ${reps}` : exercise;
+      const exercise = values[0] || "Exercise";
+
+      const reps = values[1] || "";
+
+      return `${exercise} - ${reps}`;
     }
 
-    return String(item);
+    return "Exercise";
   });
 };
 
