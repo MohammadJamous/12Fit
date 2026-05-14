@@ -149,9 +149,11 @@ const generateWorkout = async (req, res) => {
 });
 
     return res.status(201).json({
-      message: "Workout generated successfully",
-      workout,
-    });
+  message: "Workout generated successfully",
+  workout,
+  workoutPlan: workout.plan,
+});
+
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
   }
