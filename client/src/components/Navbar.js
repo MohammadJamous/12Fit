@@ -1,5 +1,4 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
 import logo from "../assets/images/logo.png";
 
 function Navbar() {
