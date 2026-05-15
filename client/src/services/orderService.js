@@ -1,4 +1,4 @@
-import api from "../utils/api";
+import api from "../api/api";
 
 export const createOrder = (data) => {
   return api.post("/orders", data);

@@ -1,4 +1,4 @@
-import api from "../utils/api";
+import api from "../api/api";
 
 export const getProducts = (search = "") => {
 	return api.get(`/products?search=${search}`);

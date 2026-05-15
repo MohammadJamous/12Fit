@@ -93,18 +93,24 @@ function App() {
 
             <Route
              path="/unauthorized"
-              element={<Unauthorized />}
-               />
+              element={
+              <Unauthorized />
+               }
+            />
 
-<Route path=
-"/server-error"
- element={<ServerError />}
-  />
+            <Route path=
+              "/server-error"
+              element={
+              <ServerError />
+               }
+            />
 
-<Route
- path="*"
- element={<NotFound />} 
- />
+            <Route
+               path="*"
+             element={
+             <NotFound />
+            } 
+            />
  
           </Routes>
         </div>

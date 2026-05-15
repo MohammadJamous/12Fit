@@ -12,6 +12,7 @@ const {
   deleteOrder,
 } = require("../controllers/orderController");
 
+ 
 router.post("/", createOrder);
 router.get("/", authMiddleware, adminMiddleware, getOrders);
 router.get("/:id", authMiddleware, adminMiddleware, getOrderById);

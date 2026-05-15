@@ -6,6 +6,7 @@ const { isValidRole } = require("../utils/validators");
 
 const getUsersWithPlans = async (req, res) => {
   try {
+
     const users = await User.find().select("name email role").sort({ createdAt: -1 });
 
     const usersWithPlans = await Promise.all(
@@ -35,6 +36,24 @@ const getUsersWithPlans = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
+
+    if (req.user.role !== "super_admin") {
+      return res.status(403).json({
+        message: "Only super admin can delete users",
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "super_admin") {
+      return res.status(403).json({
+        message: "Cannot delete super admin",
+      });
+    }
 
     await User.findByIdAndDelete(userId);
     await Workout.deleteMany({ user: userId });
@@ -67,37 +86,53 @@ const getOnlineUsersCount = async (req, res) => {
 };
 
 const updateUserRole = async (req, res) => {
+  const { id } = req.params;
+  const { role: newRole } = req.body;
+
   try {
-    const { role } = req.body;
+    if (req.user.role !== "super_admin") {
+      return res.status(403).json({
+        message: "Only super admin can change roles",
+      });
+    }
 
-    if (!role || !isValidRole(role)) {
+    if (req.user?.id === id) {
       return res.status(400).json({
-        message: "Role must be either user or admin",
+        message: "You cannot change your own role",
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      { role },
-      { new: true }
-    ).select("-password");
+    const user = await User.findById(id);
 
-    if (!updatedUser) {
-      return res.status(404).json({
-        message: "User not found",
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role === "super_admin") {
+      return res.status(403).json({
+        message: "Cannot change super admin role",
       });
     }
+
+    if (newRole === "super_admin") {
+      return res.status(403).json({
+        message: "Cannot assign super admin role",
+      });
+    }
+
+    user.role = newRole;
+    await user.save();
 
     return res.json({
       message: "User role updated successfully",
-      user: updatedUser,
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       message: "Update error",
     });
   }
-};
+}; 
 
 const checkApiStatus = async (req, res) => {
   return res.json({ status: "API is working" });

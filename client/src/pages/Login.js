@@ -16,7 +16,7 @@ function Login() {
       const res = await loginUser({ email, password });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      if (res.data.user.role === "admin") {
+      if (res.data.user.role === "admin" || res.data.user.role === "super_admin") {
         navigate("/dashboard");
         } else {
         navigate("/");
