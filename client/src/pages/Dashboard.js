@@ -897,7 +897,7 @@ function Dashboard() {
                   </div>
                 )}
 
-                {currentUser.role === "admin" && user.role !== "super_admin" && (
+                {currentUser.role === "admin" || user.role !== "super_admin" && (
                   <>
                     <button
                       className="btn btn-danger btn-sm"
