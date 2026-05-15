@@ -117,7 +117,7 @@ function Navbar() {
                     <hr className="dropdown-divider" />
                   </li>
 
-                  {(user?.role === "admin" || user?.role === "super_admin") && (
+                  {user?.role === "admin"  && (
                     <li>
                       <Link className="dropdown-item" to="/dashboard">
                         Dashboard
