@@ -5,7 +5,7 @@ function PublicOnlyRoute({ children }) {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   if (token) {
-    return <Navigate to={user.role === "admin" ? "/dashboard" : "/"} replace />;
+    return <Navigate to={(user.role === "admin" || user.role === "super_admin" )? "/dashboard" : "/"} replace />;
   }
 
   return children;
