@@ -43,7 +43,7 @@ function Navbar() {
               </Link>
             </li>
 
-            {(user?.role === "admin" || user?.role === "super_admin") && (
+            {user?.role === "admin"  && (
               <li className="nav-item">
                 <Link
                   className={`nav-link ${isActive("/dashboard")}`}
