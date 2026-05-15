@@ -556,7 +556,6 @@ small {
 }
 
 
-/* Admin Dashboard Title Hover */
 .admin-dashboard-title {
   transition: transform 0.3s ease, color 0.3s ease;
   cursor: default;

@@ -82,8 +82,8 @@ const login = async (req, res) => {
     if (!isValidEmail(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
-
-    const user = await User.findOne({ email });
+  const emailNormalized = email.toLowerCase().trim();
+    const user = await User.findOne({ email: emailNormalized });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
@@ -94,6 +94,11 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
+ 
+     appEvents.emit("user:login", {
+      userId: user._id,
+      email: user.email,
+     });
 
      return res.status(200).json({
       message: "Login successful",
@@ -105,12 +110,7 @@ const login = async (req, res) => {
         role: user.role,
       },
       });
-      
-     appEvents.emit("user:login", {
-      userId: user._id,
-      email: user.email,
-     });
-
+     
     } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
