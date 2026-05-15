@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
-   console.log("🔥 AUTH HIT");
+  
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
