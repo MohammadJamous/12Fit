@@ -6,6 +6,7 @@ const ai = new GoogleGenAI({
 
 console.log("GEMINI_API_KEY exists:", !!process.env.GEMINI_API_KEY);
 console.log("GEMINI_MODEL:", process.env.GEMINI_MODEL);
+// Safely parse AI JSON responses, even if extra text surrounds the JSON object.
 
 const safeJsonParse = (text) => {
   try {
@@ -20,6 +21,7 @@ const safeJsonParse = (text) => {
     throw error;
   }
 };
+// Normalize AI diet plan output into a consistent meal structure.
 
 const normalizeDietPlan = (dietPlan) => {
   if (!Array.isArray(dietPlan)) return [];
@@ -42,6 +44,7 @@ const normalizeDietPlan = (dietPlan) => {
     };
   });
 };
+// Normalize the full AI response before returning it to the controller.
 
 const normalizeResponse = (parsed) => {
   return {
@@ -84,7 +87,8 @@ const DIET_RESPONSE_SCHEMA = {
   },
   required: ["assistantMessage", "dietPlan", "notes"],
 };
-
+// Build the AI prompt using the user's profile, metrics,
+// current plan, and optional revision instruction.
 const buildPrompt = ({
   mode,
   profile,
@@ -166,17 +170,19 @@ Return JSON in this exact structure:
 };
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+// Send the prepared prompt to the AI model
+// and return a validated nutrition plan response.
 const createStructuredCompletion = async (prompt) => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const maxRetries = 3;
 
   let lastError;
-
+// Retry AI request if the first attempt fails,
+// then fall back safely if the service remains unavailable.
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await ai.models.generateContent({
