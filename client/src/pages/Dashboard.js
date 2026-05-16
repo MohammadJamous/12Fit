@@ -17,7 +17,7 @@ import {
   getProducts,
   updateProduct,
 } from "../services/productService";
-import { getOrders } from "../services/orderService";
+import { getOrders , deleteOrder} from "../services/orderService";
 
 function Dashboard() {
   const [users, setUsers] = useState([]);
