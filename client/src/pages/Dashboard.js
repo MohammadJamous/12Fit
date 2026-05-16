@@ -107,14 +107,19 @@ function Dashboard() {
     }
   }, []);
 
-      const handleDeliverOrder = async (orderId) => {
-    try {
-      await deleteOrder(orderId);
-      setOrders((prev) => prev.filter((o) => o._id !== orderId));
-    } catch (error) {
-      console.log(error);
-    }
-  };
+const handleDeliverOrder = async (orderId, customerName) => {
+  try {
+    await deleteOrder(orderId);
+
+    setOrders((prev) => prev.filter((o) => o._id !== orderId));
+
+    setOrderNotification(
+      `تم تسليم الطلب بنجاح للعميل ${customerName || ""}`.trim()
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   useEffect(() => {
     loadUsers();
@@ -377,12 +382,7 @@ function Dashboard() {
     }
   };
 
-  const handleDeliverOrder = (orderId, customerName) => {
-    setOrders((previousOrders) =>
-      previousOrders.filter((order) => order._id !== orderId)
-    );
-    setOrderNotification(`تم تسليم الطلب بنجاح للعميل ${customerName || ""}`.trim());
-  };
+  
 
   const filteredUsers = users.filter((user) => {
     const query = searchTerm.toLowerCase();
