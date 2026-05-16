@@ -144,10 +144,10 @@ The project was developed as part of the Backend Development course and demonstr
 │   ├── tests/
 │   └── package.json
 │
-├── screenshots/
-├── .github/
-│   └── workflows/
-│       └── test.yml
+├── 
+├── 
+│   └── 
+│       └── 
 │
 └── README.md
 ```
@@ -239,17 +239,16 @@ https://one2fit.onrender.com/api-docs
 
 ## الجزء 6
 
-````md
+
 # Installation & Setup
 
 ## Backend Setup
 
-```bash
 cd server
 npm install
 npm run dev
-```
-````
+
+
 
 # Frontend Setup
 
@@ -264,13 +263,7 @@ Run backend tests:
 cd server
 npm test
 
-# CI/CD
 
-GitHub Actions workflow is used for basic backend test automation.
-
-Workflow file:
-
-.github/workflows/test.yml
 
 ---
 
@@ -286,10 +279,6 @@ Backend
 https://one2fit.onrender.com
 ```
 ````
-
-# Screenshots
-
-Screenshots will be added later inside the screenshots/ folder.
 
 # Future Improvements
 
