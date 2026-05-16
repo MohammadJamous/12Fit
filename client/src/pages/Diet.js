@@ -123,56 +123,57 @@ function Diet() {
     }
   };
 
-  const handleRevisePlan = async () => {
-    if (!result || !userInstruction.trim() || !token) return;
+ const handleRevisePlan = async () => {
+  if (!result || !userInstruction.trim() || !token) return;
 
-    setRevising(true);
-    setMessage("");
+  setRevising(true);
+  setMessage("");
 
-    try {
-      const data = await reviseDietAI(
-        {
-          profile: formData,
-          metrics: {
-            bmi: result?.bmi,
-            bmiCategory: result?.bmiCategory,
-            bmr: result?.bmr,
-            tdee: result?.tdee,
-            targetCalories: result?.targetCalories,
-            macros: result?.macros,
-          },
-          currentPlan: result?.dietPlan || [],
-          currentNotes: result?.notes || [],
-          userInstruction,
+  try {
+    const data = await reviseDietAI(
+      {
+        dietId: result?.id,
+        profile: formData,
+        metrics: {
+          bmi: result?.bmi,
+          bmiCategory: result?.bmiCategory,
+          bmr: result?.bmr,
+          tdee: result?.tdee,
+          targetCalories: result?.targetCalories,
+          macros: result?.macros,
         },
-        token
-      );
+        currentPlan: result?.dietPlan || [],
+        currentNotes: result?.notes || [],
+        userInstruction,
+      },
+      token
+    );
 
-      setResult((prev) => ({
-        ...prev,
-        dietPlan: Array.isArray(data.dietPlan) ? data.dietPlan : prev?.dietPlan || [],
-        notes: Array.isArray(data.notes) ? data.notes : prev?.notes || [],
-        assistantMessage: data.assistantMessage || "",
-      }));
+    setResult((prev) => ({
+      ...prev,
+      id: data.id || prev?.id,
+      dietPlan: Array.isArray(data.dietPlan) ? data.dietPlan : prev?.dietPlan || [],
+      notes: Array.isArray(data.notes) ? data.notes : prev?.notes || [],
+      assistantMessage: data.assistantMessage || "",
+    }));
 
-      setChatHistory((prev) => [
-        ...prev,
-        { role: "user", content: userInstruction },
-        {
-          role: "assistant",
-          content: data.assistantMessage || "Your plan was updated.",
-        },
-      ]);
+    setChatHistory((prev) => [
+      ...prev,
+      { role: "user", content: userInstruction },
+      {
+        role: "assistant",
+        content: data.assistantMessage || "Your plan was updated.",
+      },
+    ]);
 
-      setUserInstruction("");
-      setMessage(data.message || "Diet plan updated successfully");
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Failed to update the diet plan");
-    } finally {
-      setRevising(false);
-    }
-  };
-
+    setUserInstruction("");
+    setMessage(data.message || "Diet plan updated successfully");
+  } catch (error) {
+    setMessage(error.response?.data?.message || "Failed to update the diet plan");
+  } finally {
+    setRevising(false);
+  }
+};
   return (
     <>
       <div className="container py-5">
