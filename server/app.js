@@ -7,6 +7,8 @@ require("./listeners/authListener");
 
 const connectDB = require("./config/db");
 
+const errorMiddleware = require("./middleware/errorMiddleware");
+
 const authRoutes = require("./routes/authRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
 const dietRoutes = require("./routes/dietRoutes");
@@ -20,6 +22,8 @@ const swaggerSpec = require("./config/swagger");
 const app = express();
 
 connectDB();
+
+app.use(cors());
 
 app.use((req, res, next) => {
   const allowedOrigins = [
@@ -77,6 +81,14 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/progress", progressRoutes);
 app.use("/api/v1/users", userRoutes);
+
+app.use((req, res, next) => {
+  const error = new Error("Route not found");
+  error.status = 404;
+  next(error);
+});
+
+app.use(errorMiddleware);
 
 app.use((err, req, res, next) => {
   console.error("SERVER ERROR:", err);
@@ -139,15 +151,12 @@ io.on("connection", (socket) => {
 });
 
 
-app.use((req, res, next) => {
-  const error = new Error("Route not found");
-  error.status = 404;
-  next(error);
-});
 
-app.use(errorMiddleware);
 const PORT = process.env.PORT || 8080;
 
+const startServer = async () => {
+  await connectDB();
+  
 if (process.env.NODE_ENV !== "test") {
   server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
