@@ -19,6 +19,7 @@ import {
 } from "../services/productService";
 import { getOrders , deleteOrder} from "../services/orderService";
 
+
 function Dashboard() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -105,6 +106,15 @@ function Dashboard() {
       console.log(error);
     }
   }, []);
+
+      const handleDeliverOrder = async (orderId) => {
+    try {
+      await deleteOrder(orderId);
+      setOrders((prev) => prev.filter((o) => o._id !== orderId));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     loadUsers();
@@ -716,17 +726,12 @@ function Dashboard() {
                         </div>
                       ))}
                     </div>
-
-                    <div className="mt-3 d-flex justify-content-end">
-                      <button
-                        type="button"
-                        className="btn btn-success btn-sm rounded-pill px-3"
-                        onClick={() =>
-                          handleDeliverOrder(order._id, order.customerName)
-                        }
-                      >
-                        تسليم الطلب
-                      </button>
+                  <button
+                      className="btn btn-sm btn-success mt-3 w-100"
+                      onClick={() => handleDeliverOrder(order._id)}
+                    >
+                      تسليم الطلب
+                    </button>
                     </div>
                   </div>
                 ))
@@ -975,9 +980,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
-
-
-
-
-
