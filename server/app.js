@@ -157,10 +157,13 @@ const PORT = process.env.PORT || 8080;
 const startServer = async () => {
   await connectDB();
   
-if (process.env.NODE_ENV !== "test") {
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+  if (process.env.NODE_ENV !== "test") {
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  }
+};
+
+startServer();
 
 module.exports = app;
