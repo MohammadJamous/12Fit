@@ -292,7 +292,8 @@ const buildNotes = ({
 
   return notes;
 };
-
+// Generate a rule-based diet plan without AI,
+// calculate nutrition metrics, and save the result in MongoDB.
 exports.generateDiet = async (req, res) => {
   try {
     const {
@@ -335,7 +336,7 @@ exports.generateDiet = async (req, res) => {
     const ageNum = Number(age);
     const weightNum = Number(weight);
     const heightNum = Number(height);
-
+// Calculate the user's core nutrition metrics based on body data and activity level.
     const bmi = Number((weightNum / ((heightNum / 100) ** 2)).toFixed(1));
     const bmiCategory = getBmiCategory(bmi);
     const bmr = calculateBMR({
@@ -360,7 +361,7 @@ exports.generateDiet = async (req, res) => {
       medicalConditions,
       dietaryRestrictions,
     });
-
+// Build a local fallback diet plan based on calculated calories and health flags.
     const dietPlan = buildFallbackDietPlan({
       goal,
       targetCalories,
@@ -368,7 +369,7 @@ exports.generateDiet = async (req, res) => {
       preferredFoods,
       dislikedFoods,
     });
-
+// Generate nutrition notes that reflect health conditions and food preferences.
     const notes = buildNotes({
       bmiCategory,
       medicalConditions,
@@ -379,7 +380,7 @@ exports.generateDiet = async (req, res) => {
       flags,
       aiUsed: false,
     });
-
+// Save the generated diet plan and nutrition data for the authenticated user.
     const savedDiet = await Diet.create({
       user_id: userId,
       name,
@@ -419,13 +420,11 @@ exports.generateDiet = async (req, res) => {
     });
   } catch (error) {
     console.error("generateDiet error:", error);
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
+   return next(error);
   }
 };
-
+// Generate a personalized diet plan, calculate nutrition metrics,
+// call AI service if available, and save the final result in MongoDB.
 exports.generateDietWithAI = async (req, res) => {
   try {
     const {
@@ -499,7 +498,7 @@ exports.generateDietWithAI = async (req, res) => {
       medicalConditions,
       dietaryRestrictions,
     });
-
+// Build a clean profile and metrics payload for AI diet generation.
     const profile = {
       name,
       age: ageNum,
@@ -536,7 +535,7 @@ exports.generateDietWithAI = async (req, res) => {
     } catch (aiError) {
       console.error("AI generate failed, falling back:", aiError.message);
       aiUsed = false;
-
+// If AI service fails, return a safe fallback plan so the module remains usable.
       aiResult = {
         assistantMessage:
           "AI is currently unavailable, so I generated a smart fallback nutrition plan for you.",
@@ -564,7 +563,7 @@ exports.generateDietWithAI = async (req, res) => {
             flags,
             aiUsed,
           });
-
+// Persist the final AI or fallback diet plan in MongoDB.
     const savedDiet = await Diet.create({
       user_id: userId,
       name,
@@ -607,14 +606,12 @@ exports.generateDietWithAI = async (req, res) => {
     });
   } catch (error) {
     console.error("generateDietWithAI error:", error);
-    return res.status(500).json({
-      message: "AI generation failed",
-      error: error.message,
-    });
+   return next(error);
   }
 };
-
-exports.reviseDietWithAI = async (req, res) => {
+// Revise an existing diet plan based on user instructions
+// and update the saved plan in MongoDB.
+exports.reviseDietWithAI = async (req, res, next) => {
   try {
     const userId = String(req.user?.id || "");
 
@@ -623,6 +620,7 @@ exports.reviseDietWithAI = async (req, res) => {
     }
 
     const {
+      dietId,
       profile,
       metrics,
       currentPlan,
@@ -630,9 +628,15 @@ exports.reviseDietWithAI = async (req, res) => {
       userInstruction,
     } = req.body;
 
-    if (!profile || !metrics || !Array.isArray(currentPlan) || !userInstruction?.trim()) {
+    if (
+      !dietId ||
+      !profile ||
+      !metrics ||
+      !Array.isArray(currentPlan) ||
+      !userInstruction?.trim()
+    ) {
       return res.status(400).json({
-        message: "profile, metrics, currentPlan, and userInstruction are required",
+        message: "dietId, profile, metrics, currentPlan, and userInstruction are required",
       });
     }
 
@@ -656,21 +660,35 @@ exports.reviseDietWithAI = async (req, res) => {
       };
     }
 
+    const updatedDiet = await Diet.findOneAndUpdate(
+      { _id: dietId, user_id: userId },
+      {
+        $set: {
+          plan: aiResult.dietPlan,
+          notes: aiResult.notes,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedDiet) {
+      return res.status(404).json({
+        message: "Diet plan not found",
+      });
+    }
+
     return res.json({
       message: "Diet plan updated successfully",
+      id: updatedDiet._id,
       assistantMessage: aiResult.assistantMessage,
-      dietPlan: aiResult.dietPlan,
-      notes: aiResult.notes,
+      dietPlan: updatedDiet.plan,
+      notes: updatedDiet.notes,
     });
   } catch (error) {
-    console.error("reviseDietWithAI error:", error);
-    return res.status(500).json({
-      message: "AI revision failed",
-      error: error.message,
-    });
+    return next(error);
   }
 };
-
+// Return all saved diet plans for the authenticated user.
 exports.getDietPlans = async (req, res) => {
   try {
     const userId = String(req.user?.id || "");
@@ -710,10 +728,7 @@ exports.getDietPlans = async (req, res) => {
     );
   } catch (error) {
     console.error("getDietPlans error:", error);
-    return res.status(500).json({
-      message: "DB error",
-      error: error.message,
-    });
+   return next(error);
   }
 };
 
@@ -745,9 +760,6 @@ exports.createDietPlan = async (req, res) => {
     });
   } catch (error) {
     console.error("createDietPlan error:", error);
-    return res.status(500).json({
-      message: "DB error",
-      error: error.message,
-    });
+   return next(error);
   }
 };
