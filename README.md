@@ -144,10 +144,10 @@ The project was developed as part of the Backend Development course and demonstr
 │   ├── tests/
 │   └── package.json
 │
-├── 
-├── 
-│   └── 
-│       └── 
+│ 
+│ 
+│   
+│       
 │
 └── README.md
 ```
