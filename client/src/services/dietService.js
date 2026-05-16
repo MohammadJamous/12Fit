@@ -1,4 +1,4 @@
-import api from "../utils/api";
+import api from "../api/api";
 // Build the authorization header for authenticated diet API requests.
 
 const authConfig = (token) => ({
