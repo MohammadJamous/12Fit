@@ -732,7 +732,6 @@ const handleDeliverOrder = async (orderId, customerName) => {
                     >
                       تسليم الطلب
                     </button>
-                    </div>
                   </div>
                 ))
               )}
