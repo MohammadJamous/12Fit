@@ -138,6 +138,14 @@ io.on("connection", (socket) => {
   });
 });
 
+
+app.use((req, res, next) => {
+  const error = new Error("Route not found");
+  error.status = 404;
+  next(error);
+});
+
+app.use(errorMiddleware);
 const PORT = process.env.PORT || 8080;
 
 if (process.env.NODE_ENV !== "test") {
