@@ -22,6 +22,10 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
+
+  "dependencies": {
+  "joi": "^17.0.0"
+}و
   "devDependencies": {
     "jest": "^30.4.2",
     "nodemon": "^3.1.10",
