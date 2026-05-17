@@ -292,3 +292,12 @@ Automated deployment pipeline
 # Author
 
 Developed by the 12Fit Team using the MERN stack.
+
+
+
+
+--------
+http://localhost:8080/api-docs/#/
+https://cloud.mongodb.com/v2/69e397c7c2f0c47e3160b318#/explorer/69e397f1571339e1aa64093c/fit12
+https://vercel.com/mohammadjamous-projects/12-fit
+https://dashboard.render.com/web/srv-d7hqb0vaqgkc739g9ef0/events
